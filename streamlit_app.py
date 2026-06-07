@@ -18,14 +18,14 @@ session = cnx.session()
 name_on_order = st.text_input('Name on Smoothie:')
 st.write('The name on your Smoothie will be:', name_on_order)
 
-my_dataframe = session.table("SMOOTHIES.PUBLIC.FRUIT_OPTIONS").select(col('search_on'))
+my_dataframe = session.table("SMOOTHIES.PUBLIC.FRUIT_OPTIONS").select(col('fruit_name'), col('search_on'))
 # st.dataframe(data = my_dataframe, use_container_width=True)
 # st.stop()
 
 # convert the snowpark dataframe to a pandas dataframe so we can use the loc function
 pd_df = my_dataframe.to_pandas()
-st.dataframe(pd_df)
-st.stop()
+# st.dataframe(pd_df)
+# st.stop()
 
 ingredients_list = st.multiselect(
     'Choose up to 5 ingredients:',
@@ -40,6 +40,9 @@ if ingredients_list:
     ingredients_string = ''
     for fruit_chosen in ingredients_list:
         ingredients_string += fruit_chosen + ' '
+        search_on = pd_df.loc[pd_df['fruit_name'] == fruit_chosen, 'search_on'].iloc[0]
+        st.write('The search value for ', fruit_chosen,' is ', search_on, '.')
+      
         st.subheader(fruit_chosen + ' Nutrition Information')
         smoothiefroot_response = requests.get("https://my.smoothiefroot.com/api/fruit/" + fruit_chosen)  
         sf_df = st.dataframe(
